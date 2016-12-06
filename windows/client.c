@@ -58,14 +58,15 @@ int main(int argc, char **argv){
 				if(word != 0){
 					sleep(1);
 					write(clientfd, buf, 100);
-					printf("send %s to server, windows_now = %d, unsend = %d\n"
-						, buf, windows_now, word);
+					printf("send %d -- %d to server, windows_now = %d, unsend = %d\n"
+						, 500 - word - tosend, 500 - word, windows_now, word);
 				}else{
 					write(clientfd, buf, 100);
-					printf("send %s to server, windows_now = %d, unsend = %d\n"
-						, buf, windows_now, word);		
+					printf("send %d -- %d to server, windows_now = %d, unsend = %d\n"
+						, 500 - word - tosend, 500 - word, windows_now, word);		
 					write(clientfd, "exit", 100);
 					printf("send all\n");
+					scanf("%s", buf);
 					return 0;
 				}
 			}

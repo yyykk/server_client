@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <pthread.h>
 
+char *friend;
+
 void *readfromserver(void *vargp){//线程例程
 
 	int connfd = *((int *)vargp);
@@ -19,7 +21,7 @@ void *readfromserver(void *vargp){//线程例程
 		time(&t);
 		char client_word[100];
 		read(connfd, client_word, 100);
-		printf("\n%s\tyour friend said : %s \n", ctime(&t), client_word);
+		printf("\n%s\t%s said : %s \n", ctime(&t), friend, client_word);
 		if(!strcmp(client_word, "exit")){
 			close(connfd);
 			exit(0);
@@ -56,8 +58,8 @@ void *write2server(void *vargp){//线程例程
 
 int main(int argc, char **argv){
 	int port,clientfd;
+	friend = argv[1];
 	struct hostent *hp;
-	char *EXIT = "exit is getted";
 	struct sockaddr_in serveraddr;
 	
 	port = atoi(argv[2]);
@@ -79,7 +81,7 @@ int main(int argc, char **argv){
 	}else{
 		pthread_t this_id;
 		printf("\033c");		
-		printf("You can chat with %d!\n", clientfd);
+		printf("You can chat with %s!\n", friend);
 		pthread_create(&this_id, NULL, readfromserver, &clientfd);//创建一个线程，跳向线程例程
 		pthread_create(&this_id, NULL, write2server, &clientfd);//创建一个线程，跳向线程例程
 		while(1);

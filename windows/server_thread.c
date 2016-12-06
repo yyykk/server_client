@@ -8,18 +8,19 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-int windows_max = 250;
-int windows_now = 250;
+
 
 int echo(int connfd){
+	int windows_max = 250;
+	int windows_now = 250;
+	int before_word = 0;
 	int sure_word = 0;	
 	while(1){
 		char num[100];
 		windows_now = rand() % windows_max;
 		sprintf(num, "%d",  windows_now);
 		printf("\n");
-		printf("send a new windows = %d\n", windows_now);
-
+		printf("send a new windows = %d to client %d\n", windows_now, connfd);
 		sleep(1);
 		write(connfd, num, 100);
 
@@ -32,9 +33,10 @@ int echo(int connfd){
 				return 1;
 			}
 			windows_now -= atoi(client_word);
+			before_word = sure_word;
 			sure_word += atoi(client_word);
 			sleep(0.8);
-			printf("sure of %d\n", sure_word);
+			printf("sure of %d -- %d : client ID = %d\n", before_word, sure_word, connfd);
 		}
 		windows_now = windows_max;
 	}
@@ -45,9 +47,8 @@ int echo(int connfd){
 void *client(void *vargp){
 	int connfd = *((int *)vargp);
 	pthread_detach(pthread_self());
-	printf("\033c");
 	if(echo(connfd)){
-		printf("exit from client\n");
+		printf("exit from client = %d\n", connfd);
 	}else{
 		printf("error\n");
 	}
@@ -85,8 +86,6 @@ int main(int argc, char **argv){
 	while(1){
 		clientlen = sizeof(clientadder);
 		int *connfd = malloc(sizeof(int));//由于线程间容易产生竞争，所以必须给每个线程的连接描述符分配独立的内存空间
-		printf("\033c");		
-		printf("wait for client\n");		
 		if((*connfd = accept(listenfd, (struct sockaddr *)&clientadder, &clientlen)) < 0){
 			printf( "accept error\n" );
 			exit(0);
